@@ -1,17 +1,19 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
+import 'hours.dart';
 
 class DatabaseHelper {
-  static const _databaseName = "hoursDatabase.db";
+  static const _databaseName = "timeHheetDB.db";
   static const _databaseVersion = 1;
 
-  static const table = 'hours_table';
+  static const table = 'hours';
 
-  static const columnId = '_id';
-  static const columnHours = 'hours';
-  static const columnOvertime = 'overtime';
+  static const columnId = 'id';
+  static const columnHours = 't1';
+  static const columnOvertime = 't2';
   static const columnDesc = 'desc';
 
   DatabaseHelper._privateConstructor();
@@ -34,7 +36,7 @@ class DatabaseHelper {
   Future _onCreate(Database db, int version) async {
     await db.execute('''
           CREATE TABLE $table (
-            $columnId INTEGER PRIMARY KEY,
+            $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
             $columnOvertime INTEGER NOT NULL,
             $columnHours INTEGER NOT NULL,
             $columnDesc TEXT NOT NULL
@@ -42,9 +44,14 @@ class DatabaseHelper {
           ''');
   }
 
-  Future<int?> insert(Map<String, dynamic> row) async {
+  Future<int?> insert(Hours hours) async {
     Database? db = await instance.database;
-    return await db?.insert(table, row);
+    //debugPrint('hours: ' + hours.toString());
+    return await db?.insert(
+      table,
+      hours.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
   }
 
   Future<List<Map<String, Object?>>?> queryAllRows() async {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
+import 'hours.dart';
 
 void main() => runApp(const MyApp());
 
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatelessWidget {
-  final dbHelper = DatabaseHelper.instance;
+  final db = DatabaseHelper.instance;
 
   MyHomePage({Key? key}) : super(key: key);
 
@@ -67,21 +68,16 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  void _insert() async {
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnHours: 8,
-      DatabaseHelper.columnOvertime: 2,
-      DatabaseHelper.columnDesc: 'Workshop',
-    };
-    final id = await dbHelper.insert(row);
-    debugPrint('inserted row id: $id; ' + row.toString());
-    print('inserted row id: $id');
+  Future<void> _insert() async {
+    var hours = Hours(1, 2, 'c');
+    final id = await db.insert(hours);
+    debugPrint('inserted row id: $id; ' + hours.toString());
   }
 
   void _query() async {
-    final allRows = await dbHelper.queryAllRows();
+    final allRows = await db.queryAllRows();
     print('query all rows:');
-    debugPrint(allRows.toString());
+    //debugPrint(allRows.toString());
     allRows?.forEach(print);
   }
 
@@ -92,13 +88,13 @@ class MyHomePage extends StatelessWidget {
       DatabaseHelper.columnHours: 9,
       DatabaseHelper.columnOvertime: 1
     };
-    final rowsAffected = await dbHelper.update(row);
+    final rowsAffected = await db.update(row);
     print('updated $rowsAffected row(s)');
   }
 
   void _delete() async {
-    final id = await dbHelper.queryRowCount();
-    final rowsDeleted = await dbHelper.delete(id!);
+    final id = await db.queryRowCount();
+    final rowsDeleted = await db.delete(id!);
     print('deleted $rowsDeleted row(s): row $id');
   }
 }
