@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
@@ -12,6 +11,7 @@ class DatabaseHelper {
   static const table = 'hours';
 
   static const columnId = 'id';
+  static const columnDate = 'd1';
   static const columnHours = 't1';
   static const columnOvertime = 't2';
   static const columnDesc = 'desc';
@@ -37,19 +37,20 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY AUTOINCREMENT,
-            $columnOvertime INTEGER NOT NULL,
+            $columnDate DATETIME NOT NULL,
             $columnHours INTEGER NOT NULL,
+            $columnOvertime INTEGER NOT NULL,
             $columnDesc TEXT NOT NULL
           )
           ''');
   }
 
-  Future<int?> insert(Hours hours) async {
+  Future<int?> insert(Hours row) async {
     Database? db = await instance.database;
-    //debugPrint('hours: ' + hours.toString());
+    print('row: ' + row.toMap().toString());
     return await db?.insert(
       table,
-      hours.toMap(),
+      row.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
@@ -65,11 +66,18 @@ class DatabaseHelper {
         await db!.rawQuery('SELECT COUNT(*) FROM $table'));
   }
 
-  Future<int?> update(Map<String, dynamic> row) async {
+  Future<List<Hours>> retrieveUsers() async {
     Database? db = await instance.database;
-    int id = row[columnId];
-    return await db
-        ?.update(table, row, where: '$columnId = ?', whereArgs: [id]);
+    final List<Map<String, Object?>> queryResult = await db!.query('hours');
+    print('queryResult: $queryResult');
+    return queryResult.map((e) => Hours.fromMap(e)).toList();
+  }
+
+  Future<int?> update(Hours row, int id) async {
+    Database? db = await instance.database;
+    print('row: ' + row.updateToMap().toString());
+    return await db?.update(table, row.updateToMap(),
+        where: '$columnId = ?', whereArgs: [id]);
   }
 
   Future<int?> delete(int id) async {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 import 'hours.dart';
+import 'hours_widget.dart';
 
 void main() => runApp(const MyApp());
 
@@ -62,6 +63,10 @@ class MyHomePage extends StatelessWidget {
               ),
               onPressed: _delete,
             ),
+            Expanded(
+              flex: 1,
+              child: SafeArea(child: hoursWidget()),
+            )
           ],
         ),
       ),
@@ -69,9 +74,10 @@ class MyHomePage extends StatelessWidget {
   }
 
   Future<void> _insert() async {
-    var hours = Hours(1, 2, 'c');
-    final id = await db.insert(hours);
-    debugPrint('inserted row id: $id; ' + hours.toString());
+    var d1 = DateTime.now();
+    var row = Hours(d1, 1, 2, 'c');
+    final id = await db.insert(row);
+    debugPrint('inserted row id: $id; ' + row.toString());
   }
 
   void _query() async {
@@ -82,13 +88,11 @@ class MyHomePage extends StatelessWidget {
   }
 
   void _update() async {
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnId: 1,
-      DatabaseHelper.columnDesc: 'Client',
-      DatabaseHelper.columnHours: 9,
-      DatabaseHelper.columnOvertime: 1
-    };
-    final rowsAffected = await db.update(row);
+    var d1 = DateTime.now();
+    var row = Hours(d1, 2, 3, 'ce');
+    final id = 2;
+
+    final rowsAffected = await db.update(row, id);
     print('updated $rowsAffected row(s)');
   }
 
